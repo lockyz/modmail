@@ -8,6 +8,7 @@ import subprocess
 import sys
 
 from discord.ext import commands
+from discord.utils import async_all
 
 from core import checks
 from core.models import Bot, PermissionLevel
@@ -63,6 +64,8 @@ class Plugins:
                 except DownloadError as exc:
                     msg = f'{parsed_plugin[0]}/{parsed_plugin[1]} - {exc}'
                     logger.error(error(msg))
+        await async_all(env() for env in self.bot.extra_events.get('on_plugin_ready', []))
+        logger.debug(info('on_plugin_ready called.'))
 
     async def download_plugin_repo(self, username, repo):
         try:
@@ -121,9 +124,9 @@ class Plugins:
         cmd = self.bot.get_command('help')
         await ctx.invoke(cmd, command='plugin')
 
-    @plugin.command()
+    @plugin.command(name='add')
     @checks.has_permissions(PermissionLevel.OWNER)
-    async def add(self, ctx, *, plugin_name):
+    async def plugin_add(self, ctx, *, plugin_name):
         """Adds a plugin"""
         if plugin_name in self.bot.config.plugins:
             return await ctx.send('Plugin already installed')
@@ -161,9 +164,9 @@ class Plugins:
                 await message.edit(content='Invalid plugin name format. '
                                    'Use username/repo/plugin.')
 
-    @plugin.command()
+    @plugin.command(name='remove', aliases=['del', 'delete', 'rm'])
     @checks.has_permissions(PermissionLevel.OWNER)
-    async def remove(self, ctx, *, plugin_name):
+    async def plugin_remove(self, ctx, *, plugin_name):
         """Removes a certain plugin"""
         if plugin_name in self.bot.config.plugins:
             username, repo, name = self.parse_plugin(plugin_name)
@@ -196,9 +199,9 @@ class Plugins:
         else:
             await ctx.send('Plugin not installed.')
 
-    @plugin.command()
+    @plugin.command(name='update')
     @checks.has_permissions(PermissionLevel.OWNER)
-    async def update(self, ctx, *, plugin_name):
+    async def plugin_update(self, ctx, *, plugin_name):
         """Updates a certain plugin"""
         if plugin_name not in self.bot.config.plugins:
             return await ctx.send('Plugin not installed')
@@ -229,9 +232,9 @@ class Plugins:
                     except DownloadError as exc:
                         await ctx.send(f'Unable to start plugin: `{exc}`')
 
-    @plugin.command(name='list')
+    @plugin.command(name='list', aliases=['show', 'view'])
     @checks.has_permissions(PermissionLevel.OWNER)
-    async def list_(self, ctx):
+    async def plugin_list(self, ctx):
         """Shows a list of currently enabled plugins"""
         if self.bot.config.plugins:
             msg = '```\n' + '\n'.join(self.bot.config.plugins) + '\n```'

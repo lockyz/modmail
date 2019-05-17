@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# v2.20.0
+
+### What's new? 
+
+New `oauth` whitelist command which allows you to whitelist users so they can log in via discord to view logs. To set up oauth login for your logviewer app check the logviewer [repo](https://github.com/kyb3r/logviewer).
+
+# v2.19.1
+
+### Changed
+
+- Ability to force an update despite having the same version number. Helpful to keep up-to-date with the latest GitHub commit.
+  - `?update force`.
+- Plugin developers now have a new event called `on_plugin_ready`, this is coroutine is awaited when all plugins are loaded. Use `on_plugin_ready` instead of `on_ready` since `on_ready` will not get called in plugins.
+
 # v2.19.0
 
 ### What's new?
